@@ -1,0 +1,22 @@
+{
+  "name": "systemic-aws-mq",
+  "version": "1.0.0",
+  "description": "Systemic AWS Message Queue",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sergioCB95/systemic-aws-mq.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sergioCB95/systemic-aws-mq/issues"
+  },
+  "homepage": "https://github.com/sergioCB95/systemic-aws-mq#readme",
+  "dependencies": {
+    "sqs-consumer": "^5.5.0"
+  }
+}
