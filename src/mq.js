@@ -1,4 +1,4 @@
-const initSqsConsumer = require('./sqsConsumer');
+const sqsConsumerComponent = require('./sqsConsumer')();
 
 module.exports = () => {
   let config;
@@ -7,14 +7,25 @@ module.exports = () => {
   let sqs;
   let sqsConsumer;
 
-  const start = async (...dependencies) => {
-    config = dependencies.config;
+  const _setUpConfig = (inputConfig) => ({
+    noStart: inputConfig.noStart || false,
+    queueParams: {
+      attributeNames: inputConfig.queueParams && inputConfig.queueParams.attributeNames || ['SentTimestamp'],
+      batchSize: inputConfig.queueParams && inputConfig.queueParams.batchSize || 10,
+      messageAttributeNames: inputConfig.queueParams && inputConfig.queueParams.messageAttributeNames || ['All'],
+      visibilityTimeout: inputConfig.queueParams && inputConfig.queueParams.visibilityTimeout || 20,
+      waitTimeSeconds: inputConfig.queueParams && inputConfig.queueParams.waitTimeSeconds || 20,
+      ...inputConfig.queueParams,
+    }
+  });
+
+  const start = async (dependencies) => {
+
+    config = _setUpConfig(dependencies.config || {});
     logger = dependencies.logger || console;
     sns = dependencies.sns;
-    sqs = dependencies.sns;
-    sqsConsumer = dependencies.sqsConsumer || initSqsConsumer();
-
-    await sqsConsumer.start({ config, logger, sqs });
+    sqs = dependencies.sqs;
+    sqsConsumer = await sqsConsumerComponent.start({ config, logger, sqs });
 
     const publish = ({ topic, message }) => sns.publish({ topic, message });
 
@@ -53,11 +64,12 @@ module.exports = () => {
     return {
       publish,
       subscribe,
+      listeners: sqsConsumer.listeners,
     };
   };
 
   const stop = async () => {
-    await sqsConsumer.stop();
+    await sqsConsumerComponent.stop();
   }
 
   return { start, stop };

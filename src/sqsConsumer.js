@@ -11,18 +11,18 @@ module.exports = () => {
   }) => {
     logger = log;
 
-    const _buildQueueParams = (queueUrl, handleMessage) => ({
-      queueUrl,
+    const _buildQueueParams = (queueName, handleMessage) => ({
+      queueUrl: queueName,
       handleMessage,
       sqs,
       ...config.queueParams,
     });
 
-    const subscribe = (queueUrl, handleMessage) => {
+    const subscribe = (queueName, handleMessage) => {
       const listener = Consumer.create(
-        _buildQueueParams(queueUrl, handleMessage)
+        _buildQueueParams(queueName, handleMessage)
       );
-      listeners[queueUrl] = listener;
+      listeners[queueName] = listener;
 
       listener.on('error', (err) => {
         logger.error(err.message);
@@ -37,7 +37,7 @@ module.exports = () => {
       });
 
       listener.on('stopped', () => {
-        listeners[queueUrl].stopped = true;
+        listeners[queueName].stopped = true;
       });
 
       if (!config.noStart) listener.start();
